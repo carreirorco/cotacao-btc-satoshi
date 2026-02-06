@@ -588,7 +588,7 @@
     </section>
 
     <footer>
-        <p>Dados obtidos via <a href="https://www.coingecko.com/" target="_blank" rel="noopener">CoinGecko API</a></p>
+        <p>Dados obtidos via <a href="https://docs.awesomeapi.com.br/api-de-moedas" target="_blank" rel="noopener">AwesomeAPI</a></p>
         <p class="api-note">Atualizado automaticamente a cada 60 segundos</p>
     </footer>
 </div>
@@ -704,14 +704,15 @@
 
     document.getElementById('calc-sats').addEventListener('input', updateCalc);
 
-    // Fetch price
+    // Fetch price from AwesomeAPI (free, no key required)
     async function fetchPrice() {
         try {
-            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,brl');
+            const res = await fetch('https://economia.awesomeapi.com.br/json/last/BTC-USD,BTC-BRL');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
 
-            priceUSD = data.bitcoin.usd;
-            priceBRL = data.bitcoin.brl;
+            priceUSD = parseFloat(data.BTCUSD.bid);
+            priceBRL = parseFloat(data.BTCBRL.bid);
 
             document.getElementById('price-usd').textContent = formatUSD(priceUSD);
             document.getElementById('price-brl').textContent = formatBRL(priceBRL);
