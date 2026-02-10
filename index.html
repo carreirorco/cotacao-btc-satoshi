@@ -3,7 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Satoshi - A menor unidade do Bitcoin</title>
+
+    <title>Calculadora Satoshi: converter satoshi para real (BRL) e USD</title>
+    <meta name="description" content="Converta satoshis para reais (BRL) e dólares (USD) com a cotação do Bitcoin em tempo real. Tabela de conversão e conversor rápido.">
+    <link rel="canonical" href="https://calculadorasatoshi.com/">
+
+    <!-- Indexação e compartilhamento -->
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://calculadorasatoshi.com/">
+    <meta property="og:title" content="Calculadora Satoshi — satoshi ⇄ real (BRL) e USD">
+    <meta property="og:description" content="Converta satoshis para reais (BRL) e dólares (USD) com a cotação do Bitcoin em tempo real. Tabela de conversão e conversor rápido.">
+    <meta property="og:image" content="https://calculadorasatoshi.com/og.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Calculadora Satoshi — satoshi ⇄ real (BRL) e USD">
+    <meta name="twitter:description" content="Converta satoshis para reais (BRL) e dólares (USD) com a cotação do Bitcoin em tempo real. Tabela de conversão e conversor rápido.">
+    <meta name="twitter:image" content="https://calculadorasatoshi.com/og.png">
+
+    <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://economia.awesomeapi.com.br" crossorigin>
+    <link rel="dns-prefetch" href="https://economia.awesomeapi.com.br">
+
+    <!-- Segurança (limitada ao que é possível via HTML em static hosting) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://economia.awesomeapi.com.br; upgrade-insecure-requests;">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+    <!-- Dados estruturados (SEO) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Calculadora Satoshi",
+      "url": "https://calculadorasatoshi.com/"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Calculadora Satoshi",
+      "url": "https://calculadorasatoshi.com/",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "All",
+      "inLanguage": "pt-BR",
+      "description": "Converta satoshis para reais (BRL) e dólares (USD) com a cotação do Bitcoin em tempo real. Tabela de conversão e conversor rápido."
+    }
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Share+Tech+Mono&display=swap');
 
@@ -509,6 +561,12 @@
 </head>
 <body>
 
+<noscript>
+  <div style="max-width:900px;margin:0 auto;padding:12px 16px;color:#c0c0c0;font-family:'Fira Code','Courier New',monospace;">
+    Este site precisa de JavaScript para buscar a cotação e calcular as conversões.
+  </div>
+</noscript>
+
 <canvas class="matrix-bg" id="matrix"></canvas>
 
 <div class="container">
@@ -526,14 +584,14 @@
             <div class="price-value" id="price-usd">
                 <span class="price-loading">carregando...</span>
             </div>
-            <div class="price-updated" id="updated-usd"></div>
+            <div class="price-updated" id="updated-usd" aria-live="polite"></div>
         </div>
         <div class="price-card brl">
             <div class="price-label"><span class="currency-flag">BRL</span> Bitcoin / Real</div>
             <div class="price-value" id="price-brl">
                 <span class="price-loading">carregando...</span>
             </div>
-            <div class="price-updated" id="updated-brl"></div>
+            <div class="price-updated" id="updated-brl" aria-live="polite"></div>
         </div>
     </section>
 
@@ -573,7 +631,7 @@
         <div class="calc-row">
             <div class="calc-input-group">
                 <label>Satoshis</label>
-                <input type="number" id="calc-sats" placeholder="ex: 50000" min="0">
+                <input type="number" id="calc-sats" placeholder="ex: 50000" min="0" step="1" inputmode="numeric" autocomplete="off" aria-label="Quantidade em satoshis">
             </div>
             <div class="calc-equals">=</div>
             <div class="calc-result-group">
@@ -707,7 +765,10 @@
     // Fetch price from AwesomeAPI (free, no key required)
     async function fetchPrice() {
         try {
-            const res = await fetch('https://economia.awesomeapi.com.br/json/last/BTC-USD,BTC-BRL');
+            const controller = new AbortController();
+            const t = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch('https://economia.awesomeapi.com.br/json/last/BTC-USD,BTC-BRL', { signal: controller.signal, cache: 'no-store' });
+            clearTimeout(t);
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
 
