@@ -612,6 +612,53 @@
             opacity: 0.7;
         }
 
+        /* Share */
+        .share-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 30px 0 0;
+            padding: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+
+        .share-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .share-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            padding: 5px 10px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .share-btn:hover {
+            border-color: var(--green-dim);
+            color: var(--green);
+        }
+
+        .share-btn.copied {
+            border-color: var(--green-dim);
+            color: var(--green);
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -765,6 +812,15 @@
         <div class="donate-note">Lightning Address — abre direto na sua carteira</div>
     </section>
 
+    <!-- Compartilhar -->
+    <section class="share-section">
+        <span class="share-label">compartilhar:</span>
+        <a class="share-btn" id="share-whatsapp" href="#" target="_blank" rel="noopener">whatsapp</a>
+        <a class="share-btn" id="share-telegram" href="#" target="_blank" rel="noopener">telegram</a>
+        <a class="share-btn" id="share-x" href="#" target="_blank" rel="noopener">x/twitter</a>
+        <button class="share-btn" id="share-copy">copiar link</button>
+    </section>
+
     <footer>
         <p>Dados obtidos via <a href="https://docs.awesomeapi.com.br/api-de-moedas" target="_blank" rel="noopener">AwesomeAPI</a></p>
         <p class="api-note">Atualizado automaticamente a cada 60 segundos</p>
@@ -905,12 +961,36 @@
 
             renderTable();
             updateCalc();
+            updateShareLinks();
         } catch (err) {
             document.getElementById('price-usd').innerHTML = '<span style="color:#ff4444;font-size:0.85rem;">erro ao carregar</span>';
             document.getElementById('price-brl').innerHTML = '<span style="color:#ff4444;font-size:0.85rem;">erro ao carregar</span>';
             console.error('Erro ao buscar cotacao:', err);
         }
     }
+
+    // Share
+    const siteUrl = 'https://calculadorasatoshi.com/';
+    const shareText = 'Calculadora Satoshi — converta satoshis para reais e dólares com cotação em tempo real.';
+
+    function updateShareLinks() {
+        const priceInfo = priceBRL > 0 ? ' Bitcoin agora: ' + formatBRL(priceBRL) : '';
+        const text = encodeURIComponent(shareText + priceInfo);
+        const url = encodeURIComponent(siteUrl);
+        document.getElementById('share-whatsapp').href = 'https://api.whatsapp.com/send?text=' + text + '%20' + url;
+        document.getElementById('share-telegram').href = 'https://t.me/share/url?url=' + url + '&text=' + text;
+        document.getElementById('share-x').href = 'https://x.com/intent/tweet?text=' + text + '&url=' + url;
+    }
+
+    document.getElementById('share-copy').addEventListener('click', function() {
+        navigator.clipboard.writeText(siteUrl).then(() => {
+            this.textContent = 'copiado!';
+            this.classList.add('copied');
+            setTimeout(() => { this.textContent = 'copiar link'; this.classList.remove('copied'); }, 2000);
+        });
+    });
+
+    updateShareLinks();
 
     // Donate: copy address
     document.getElementById('btn-copy-ln').addEventListener('click', function() {
