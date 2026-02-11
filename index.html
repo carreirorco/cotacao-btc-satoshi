@@ -34,8 +34,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Share+Tech+Mono&display=swap">
 
     <!-- Segurança (limitada ao que é possível via HTML em static hosting) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://economia.awesomeapi.com.br; upgrade-insecure-requests;">
-    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://economia.awesomeapi.com.br; upgrade-insecure-requests;">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
 
     <!-- Dados estruturados (SEO) -->
     <script type="application/ld+json">
@@ -705,7 +705,6 @@
 
             .table-section {
                 overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
             }
 
             .conversion-table {
@@ -952,7 +951,7 @@
     // Calculator
     function updateCalc() {
         const satsInput = document.getElementById('calc-sats').value;
-        const sats = parseFloat(satsInput) || 0;
+        const sats = Math.max(0, Math.floor(parseFloat(satsInput) || 0));
         const btc = sats / 100000000;
 
         document.getElementById('calc-btc').textContent = btc.toFixed(8);
@@ -972,8 +971,12 @@
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
 
-            priceUSD = parseFloat(data.BTCUSD.bid);
-            priceBRL = parseFloat(data.BTCBRL.bid);
+            if (!data.BTCUSD || !data.BTCBRL) throw new Error('Dados incompletos');
+            const usd = parseFloat(data.BTCUSD.bid);
+            const brl = parseFloat(data.BTCBRL.bid);
+            if (!isFinite(usd) || !isFinite(brl)) throw new Error('Valor invalido');
+            priceUSD = usd;
+            priceBRL = brl;
 
             document.getElementById('price-usd').textContent = formatUSD(priceUSD);
             document.getElementById('price-brl').textContent = formatBRL(priceBRL);
@@ -987,8 +990,8 @@
             updateCalc();
             updateShareLinks();
         } catch (err) {
-            document.getElementById('price-usd').innerHTML = '<span style="color:#ff4444;font-size:0.85rem;">erro ao carregar</span>';
-            document.getElementById('price-brl').innerHTML = '<span style="color:#ff4444;font-size:0.85rem;">erro ao carregar</span>';
+            document.getElementById('price-usd').textContent = 'erro ao carregar';
+            document.getElementById('price-brl').textContent = 'erro ao carregar';
             console.error('Erro ao buscar cotacao:', err);
         }
     }
@@ -1007,23 +1010,25 @@
     }
 
     document.getElementById('share-copy').addEventListener('click', function() {
+        const btn = this;
         navigator.clipboard.writeText(siteUrl).then(() => {
-            this.textContent = 'copiado!';
-            this.classList.add('copied');
-            setTimeout(() => { this.textContent = 'copiar link'; this.classList.remove('copied'); }, 2000);
-        });
+            btn.textContent = 'copiado!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = 'copiar link'; btn.classList.remove('copied'); }, 2000);
+        }).catch(() => {});
     });
 
     updateShareLinks();
 
     // Donate: copy address
     document.getElementById('btn-copy-ln').addEventListener('click', function() {
+        const btn = this;
         const addr = document.getElementById('ln-address').textContent;
         navigator.clipboard.writeText(addr).then(() => {
-            this.textContent = 'copiado!';
-            this.classList.add('copied');
-            setTimeout(() => { this.textContent = 'copiar'; this.classList.remove('copied'); }, 2000);
-        });
+            btn.textContent = 'copiado!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = 'copiar'; btn.classList.remove('copied'); }, 2000);
+        }).catch(() => {});
     });
 
     // Donate: toggle QR
