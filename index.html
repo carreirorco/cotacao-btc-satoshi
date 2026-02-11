@@ -31,6 +31,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://economia.awesomeapi.com.br" crossorigin>
     <link rel="dns-prefetch" href="https://economia.awesomeapi.com.br">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Share+Tech+Mono&display=swap">
 
     <!-- Segurança (limitada ao que é possível via HTML em static hosting) -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://economia.awesomeapi.com.br; upgrade-insecure-requests;">
@@ -58,8 +59,6 @@
     }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Share+Tech+Mono&display=swap');
-
         * {
             margin: 0;
             padding: 0;
@@ -808,7 +807,7 @@
             <button class="donate-btn" id="btn-toggle-qr" aria-label="Mostrar QR Code">qr code</button>
         </div>
         <div class="donate-qr-wrapper" id="donate-qr">
-            <img src="qr_donate.jpeg" alt="QR Code para doação Lightning" width="200" height="200">
+            <img src="qr_donate.jpeg" alt="QR Code para doação Lightning" width="200" height="200" loading="lazy">
         </div>
         <div class="donate-note">Lightning Address — abre direto na sua carteira</div>
     </section>
@@ -838,10 +837,16 @@
 
         const chars = '01₿$¥€£ satoshi'.split('');
         const fontSize = 14;
-        const columns = Math.floor(canvas.width / fontSize);
-        const drops = Array(columns).fill(1);
+        let columns = Math.floor(canvas.width / fontSize);
+        let drops = Array(columns).fill(1);
+        let lastFrame = 0;
+        const frameInterval = 80;
 
-        function draw() {
+        function draw(timestamp) {
+            if (document.hidden) { requestAnimationFrame(draw); return; }
+            if (timestamp - lastFrame < frameInterval) { requestAnimationFrame(draw); return; }
+            lastFrame = timestamp;
+
             ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#00ff41';
@@ -855,13 +860,16 @@
                 }
                 drops[i]++;
             }
+            requestAnimationFrame(draw);
         }
 
-        setInterval(draw, 80);
+        requestAnimationFrame(draw);
 
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            columns = Math.floor(canvas.width / fontSize);
+            drops = Array(columns).fill(1);
         });
     })();
 
