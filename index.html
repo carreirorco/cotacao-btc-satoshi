@@ -507,6 +507,111 @@
             font-weight: 600;
         }
 
+        /* Donate */
+        .donate-section {
+            text-align: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 24px;
+            margin: 30px 0 0;
+        }
+
+        .donate-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--green);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .donate-title::before {
+            content: '# ';
+            color: var(--text-dim);
+        }
+
+        .donate-desc {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+
+        .donate-address-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .donate-address {
+            display: inline-block;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--green);
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            letter-spacing: 1px;
+            word-break: break-all;
+            text-decoration: none;
+            transition: border-color 0.3s;
+        }
+
+        .donate-address:hover {
+            border-color: var(--green-dim);
+            box-shadow: 0 0 10px var(--green-glow);
+        }
+
+        .donate-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            padding: 6px 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .donate-btn:hover {
+            border-color: var(--green-dim);
+            color: var(--green);
+        }
+
+        .donate-btn.copied {
+            border-color: var(--green-dim);
+            color: var(--green);
+        }
+
+        .donate-qr-wrapper {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease, margin-top 0.4s ease;
+            margin-top: 0;
+        }
+
+        .donate-qr-wrapper.open {
+            max-height: 300px;
+            margin-top: 16px;
+        }
+
+        .donate-qr-wrapper img {
+            width: 200px;
+            height: 200px;
+            image-rendering: pixelated;
+            border: 1px solid var(--border);
+        }
+
+        .donate-note {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            margin-top: 12px;
+            opacity: 0.7;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -643,6 +748,21 @@
             <div class="calc-fiat-item">USD: <span class="value" id="calc-usd">$ 0.00</span></div>
             <div class="calc-fiat-item">BRL: <span class="value" id="calc-brl">R$ 0,00</span></div>
         </div>
+    </section>
+
+    <!-- Doação Lightning -->
+    <section class="donate-section">
+        <div class="donate-title">Doe satoshis &#9889;</div>
+        <div class="donate-desc">Gostou? Apoie o projeto via Lightning Network</div>
+        <div class="donate-address-row">
+            <a class="donate-address" id="ln-address" href="lightning:calculadorasatoshi@blink.sv">calculadorasatoshi@blink.sv</a>
+            <button class="donate-btn" id="btn-copy-ln" aria-label="Copiar Lightning Address">copiar</button>
+            <button class="donate-btn" id="btn-toggle-qr" aria-label="Mostrar QR Code">qr code</button>
+        </div>
+        <div class="donate-qr-wrapper" id="donate-qr">
+            <img src="qr_donate.jpeg" alt="QR Code para doação Lightning" width="200" height="200">
+        </div>
+        <div class="donate-note">Lightning Address — abre direto na sua carteira</div>
     </section>
 
     <footer>
@@ -791,6 +911,22 @@
             console.error('Erro ao buscar cotacao:', err);
         }
     }
+
+    // Donate: copy address
+    document.getElementById('btn-copy-ln').addEventListener('click', function() {
+        const addr = document.getElementById('ln-address').textContent;
+        navigator.clipboard.writeText(addr).then(() => {
+            this.textContent = 'copiado!';
+            this.classList.add('copied');
+            setTimeout(() => { this.textContent = 'copiar'; this.classList.remove('copied'); }, 2000);
+        });
+    });
+
+    // Donate: toggle QR
+    document.getElementById('btn-toggle-qr').addEventListener('click', function() {
+        document.getElementById('donate-qr').classList.toggle('open');
+        this.textContent = document.getElementById('donate-qr').classList.contains('open') ? 'fechar' : 'qr code';
+    });
 
     // Init
     renderTable();
