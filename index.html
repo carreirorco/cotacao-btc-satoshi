@@ -699,14 +699,29 @@
                 font-size: 1.2rem;
             }
 
-            .conversion-table td,
-            .conversion-table thead th {
-                padding: 10px 12px;
-                font-size: 0.8rem;
-            }
-
             .price-value {
                 font-size: 1.2rem;
+            }
+
+            .table-section {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .conversion-table {
+                min-width: 480px;
+            }
+
+            .conversion-table td,
+            .conversion-table thead th {
+                padding: 8px 10px;
+                font-size: 0.75rem;
+                letter-spacing: 0;
+            }
+
+            .conversion-table td.fiat-usd,
+            .conversion-table td.fiat-brl {
+                font-size: 0.7rem;
             }
         }
     </style>
