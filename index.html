@@ -921,7 +921,7 @@
     function highlightBtc(btcStr) {
         // Highlight the significant part
         const match = btcStr.match(/^(0\.0*)(.*)/);
-        if (match && match[1] !== '0.') {
+        if (match) {
             return match[1] + '<span class="btc-highlight">' + match[2] + '</span>';
         }
         if (btcStr === '1.00000000') {
